@@ -1,0 +1,166 @@
+.dashboard-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.header-section {
+  background-color: white;
+  padding: 20px 30px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.greeting h5 {
+  font-weight: 600;
+  color: #333;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.profile-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.profile-role {
+  color: #666;
+  font-size: 12px;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+.page-title-section {
+  padding: 30px 30px 20px 30px;
+}
+
+.page-title-section h4 {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.controls-section {
+  padding: 0 30px 20px 30px;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  z-index: 10;
+}
+
+.search-box input {
+  padding-left: 40px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.table-section {
+  margin: 0 30px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-section h6 {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #333;
+  padding: 15px;
+}
+
+.table tbody td {
+  padding: 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-info strong {
+  display: block;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.pagination-section {
+  padding: 20px 30px;
+}
+
+.items-per-page {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-outline-secondary {
+  border-color: #ddd;
+  color: #666;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #ddd;
+  color: #333;
+}

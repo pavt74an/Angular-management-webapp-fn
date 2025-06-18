@@ -1,0 +1,20 @@
+<!-- sidebar.component.html -->
+<div class="sidebar bg-light p-3">
+  <!-- Logo -->
+  <div class="mb-4">
+    <h5 class="fw-bold">YOURLOGO</h5>
+  </div>
+  
+  <!-- Navigation Menu -->
+  <nav class="nav nav-pills flex-column">
+    <a 
+      *ngFor="let item of menuItems"
+      class="nav-link d-flex align-items-center mb-2"
+      [class.active]="item.active"
+      href="#"
+      (click)="onMenuClick(item); $event.preventDefault()">
+      <i [class]="item.icon + ' me-2'"></i>
+      {{ item.label }}
+    </a>
+  </nav>
+</div>

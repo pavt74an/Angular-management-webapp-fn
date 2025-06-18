@@ -1,0 +1,210 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="greeting">
+          <h5 class="mb-1">Hello, Paweesuda</h5>
+          <p class="text-muted mb-0">Have a nice day</p>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="user-profile">
+          <i class="bi bi-bell me-3"></i>
+          <div class="profile-info">
+            <span class="profile-name">Paweesuda Thippayanasa</span>
+            <small class="profile-role">Admin</small>
+          </div>
+          <div class="profile-avatar ms-2">
+            <div class="avatar-circle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Title -->
+  <div class="page-title-section">
+    <h4 class="text-primary">Users Dashboard</h4>
+  </div>
+
+  <!-- Error/Success Message -->
+  <div *ngIf="error" class="alert" 
+       [class.alert-danger]="!error.startsWith('SUCCESS:')"
+       [class.alert-success]="error.startsWith('SUCCESS:')" 
+       role="alert">
+    {{ error.startsWith('SUCCESS:') ? error.substring(8) : error }}
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls-section">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="form-control w-100" 
+            placeholder="Search by name or email..." 
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            [disabled]="loading">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex justify-content-end align-items-center gap-3">
+          <button class="btn btn-primary" (click)="openAddUserModal()" [disabled]="loading">
+            Add user<i class="bi bi-plus"></i> 
+          </button>
+          
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" 
+                    type="button" 
+                    data-bs-toggle="dropdown"
+                    [disabled]="loading">
+              Sort by: {{ selectedSort === 'firstName' ? 'Name' : selectedSort === 'createDate' ? 'Date' : 'Role' }}
+              <i class="bi" [class]="selectedSortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" (click)="onSortByName(); $event.preventDefault()">Name</a></li>
+              <li><a class="dropdown-item" href="#" (click)="onSortByDate(); $event.preventDefault()">Date Created</a></li>
+              <li><a class="dropdown-item" href="#" (click)="onSortByRole(); $event.preventDefault()">Role</a></li>
+            </ul>
+          </div>
+          
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" 
+                    type="button" 
+                    data-bs-toggle="dropdown"
+                    [disabled]="loading">
+              Saved search
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Recent Users</a></li>
+              <li><a class="dropdown-item" href="#">Admin Users</a></li>
+              <li><a class="dropdown-item" href="#">Active Users</a></li>
+            </ul>
+          </div>
+          
+          <button class="btn btn-outline-secondary" [disabled]="loading">
+            <i class="bi bi-sliders"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table Section -->
+  <div class="table-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="mb-0">List Users</h6>
+      <div *ngIf="loading" class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm me-2" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <span class="text-muted">Loading users...</span>
+      </div>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Create Date</th>
+            <th>Description</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="loading && users.length === 0">
+            <td colspan="5" class="text-center py-4">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2">Loading users...</div>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && users.length === 0">
+            <td colspan="5" class="text-center py-4 text-muted">
+              No users found
+            </td>
+          </tr>
+          <tr *ngFor="let user of getPaginatedUsers()">
+            <td>
+              <div class="user-info">
+                <strong>{{ user.name }}</strong>
+                <div class="user-email">{{ user.email }}</div>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [class]="'bg-' + user.roleColor">{{ user.role }}</span>
+            </td>
+            <td>{{ user.createDate }}</td>
+            <td>{{ user.description }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-outline-secondary me-1" 
+                        [disabled]="loading"
+                        title="Edit user">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" 
+                        (click)="deleteUser(user.id)"
+                        [disabled]="loading"
+                        title="Delete user">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination Section -->
+  <div class="pagination-section">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="items-per-page">
+          <span>Items per page:</span>
+          <select class="form-select d-inline-block ms-2" 
+                  style="width: auto;" 
+                  [(ngModel)]="itemsPerPage" 
+                  (change)="onItemsPerPageChange()"
+                  [disabled]="loading">
+            <option value="6">6</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="pagination-info">
+          <span>{{ getDisplayRange() }}</span>
+          <button class="btn btn-sm btn-outline-secondary ms-3" 
+                  (click)="previousPage()" 
+                  [disabled]="currentPage <= 1 || loading">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <span class="mx-2">{{ currentPage }} / {{ totalPages || 1 }}</span>
+          <button class="btn btn-sm btn-outline-secondary" 
+                  (click)="nextPage()" 
+                  [disabled]="currentPage >= totalPages || loading">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<app-add-user-modal 
+  [show]="showAddUserModal" 
+  (close)="closeAddUserModal()" 
+  (userAdded)="onUserAdded($event)">
+</app-add-user-modal>
