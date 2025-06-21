@@ -2,12 +2,12 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add User</h5>
+        <h5 class="modal-title">{{ getModalTitle() }}</h5>
         <button type="button" class="btn-close" (click)="onClose()">
           <i class="bi bi-x"></i>
         </button>
       </div>
-      
+
       <div class="modal-body">
         <!-- Error Message -->
         <div *ngIf="error" class="alert alert-danger" role="alert">
@@ -31,82 +31,44 @@
 
         <form #userForm="ngForm" (ngSubmit)="onSubmit()">
           <!-- User ID -->
-          <div class="row mb-3">
+          <div class="row mb-2">
             <div class="col-12">
               <label for="userId" class="form-label">User ID <span class="text-danger">*</span></label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="userId"
-                name="userId"
-                [(ngModel)]="newUser.userId"
-                required
-                [disabled]="loading"
-                placeholder="Enter User ID (e.g., USR007)">
+              <input type="text" class="form-control" id="userId" name="userId" [(ngModel)]="newUser.userId" required
+                [disabled]="loading || editMode" [readonly]="editMode" placeholder="Enter User ID (e.g., USR007)">
+              <div *ngIf="editMode" class="form-text">User ID cannot be changed when editing</div>
             </div>
           </div>
 
           <!-- First Name and Last Name -->
-          <div class="row mb-3">
+          <div class="row mb-2">
             <div class="col-md-6">
               <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="firstName"
-                name="firstName"
-                [(ngModel)]="newUser.firstName"
-                required
-                [disabled]="loading"
-                placeholder="Enter first name">
+              <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="newUser.firstName"
+                required [disabled]="loading" placeholder="Enter first name">
             </div>
             <div class="col-md-6">
               <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="lastName"
-                name="lastName"
-                [(ngModel)]="newUser.lastName"
-                required
-                [disabled]="loading"
-                placeholder="Enter last name">
+              <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="newUser.lastName"
+                required [disabled]="loading" placeholder="Enter last name">
             </div>
           </div>
 
           <!-- Email and Mobile -->
-          <div class="row mb-3">
+          <div class="row mb-2">
             <div class="col-md-4">
               <label for="userEmail" class="form-label">Email ID <span class="text-danger">*</span></label>
-              <input 
-                type="email" 
-                class="form-control" 
-                id="userEmail"
-                name="userEmail"
-                [(ngModel)]="newUser.email"
-                required
-                [disabled]="loading"
-                placeholder="Enter email address">
+              <input type="email" class="form-control" id="userEmail" name="userEmail" [(ngModel)]="newUser.email"
+                required [disabled]="loading" placeholder="Enter email address">
             </div>
             <div class="col-md-4">
               <label for="mobile" class="form-label">Mobile No</label>
-              <input 
-                type="tel" 
-                class="form-control" 
-                id="mobile"
-                name="mobile"
-                [(ngModel)]="newUser.mobile"
-                [disabled]="loading"
-                placeholder="Enter mobile number">
+              <input type="tel" class="form-control" id="mobile" name="mobile" [(ngModel)]="newUser.mobile"
+                [disabled]="loading" placeholder="Enter mobile number">
             </div>
             <div class="col-md-4">
               <label for="roleType" class="form-label">Select Role Type <span class="text-danger">*</span></label>
-              <select 
-                class="form-select" 
-                id="roleType"
-                name="roleType"
-                [(ngModel)]="newUser.roleType"
-                required
+              <select class="form-select" id="roleType" name="roleType" [(ngModel)]="newUser.roleType" required
                 [disabled]="loading">
                 <option value="">Select Role Type</option>
                 <option *ngFor="let role of roles" [value]="role.roleId">
@@ -117,43 +79,23 @@
           </div>
 
           <!-- Username, Password, Confirm Password -->
-          <div class="row mb-3">
+          <div class="row mb-2">
             <div class="col-md-4">
               <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="username"
-                name="username"
-                [(ngModel)]="newUser.username"
-                required
-                [disabled]="loading"
-                placeholder="Enter username">
+              <input type="text" class="form-control" id="username" name="username" [(ngModel)]="newUser.username"
+                required [disabled]="loading" placeholder="Enter username">
             </div>
             <div class="col-md-4">
               <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-              <input 
-                type="password" 
-                class="form-control" 
-                id="password"
-                name="password"
-                [(ngModel)]="newUser.password"
-                required
-                [disabled]="loading"
-                placeholder="Enter password">
+              <input type="password" class="form-control" id="password" name="password" [(ngModel)]="newUser.password"
+                required [disabled]="loading" placeholder="Enter password">
             </div>
             <div class="col-md-4">
-              <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-              <input 
-                type="password" 
-                class="form-control" 
-                id="confirmPassword"
-                name="confirmPassword"
-                [(ngModel)]="newUser.confirmPassword"
-                required
-                [disabled]="loading"
-                [class.is-invalid]="getPasswordValidationMessage()"
-                placeholder="Confirm password">
+              <label for="confirmPassword" class="form-label">Confirm Password <span
+                  class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                [(ngModel)]="newUser.confirmPassword" required [disabled]="loading"
+                [class.is-invalid]="getPasswordValidationMessage()" placeholder="Confirm password">
               <div class="invalid-feedback" *ngIf="getPasswordValidationMessage()">
                 {{ getPasswordValidationMessage() }}
               </div>
@@ -162,46 +104,32 @@
 
           <!-- Module Permission Section -->
           <div class="permission-section">
-            <h6 class="permission-title">Module Permission</h6>
-            
             <div class="permission-table">
               <div class="permission-header">
-                <div class="permission-col module-col">Module</div>
-                <div class="permission-col text-center">Read</div>
-                <div class="permission-col text-center">Write</div>
-                <div class="permission-col text-center">Delete</div>
+                <div class="permission-col module-col text-secondary">Module Permission</div>
+                <div class="permission-col text-center text-secondary">Read</div>
+                <div class="permission-col text-center text-secondary">Write</div>
+                <div class="permission-col text-center text-secondary">Delete</div>
               </div>
-              
+
               <div class="permission-row" *ngFor="let permission of permissions; let i = index">
-                <div class="permission-col module-name">{{ permission.permissionName }}</div>
+                <div class="permission-col module-name text-start">{{ permission.permissionName }}</div>
                 <div class="permission-col text-center">
                   <div class="form-check">
-                    <input 
-                      class="form-check-input" 
-                      type="checkbox" 
-                      [checked]="permission.isReadable"
-                      [disabled]="loading"
-                      (change)="togglePermission(i, 'isReadable')">
+                    <input class="form-check-input" type="checkbox" [checked]="permission.isReadable"
+                      [disabled]="loading" (change)="togglePermission(i, 'isReadable')">
                   </div>
                 </div>
                 <div class="permission-col text-center">
                   <div class="form-check">
-                    <input 
-                      class="form-check-input" 
-                      type="checkbox" 
-                      [checked]="permission.isWritable"
-                      [disabled]="loading"
-                      (change)="togglePermission(i, 'isWritable')">
+                    <input class="form-check-input" type="checkbox" [checked]="permission.isWritable"
+                      [disabled]="loading" (change)="togglePermission(i, 'isWritable')">
                   </div>
                 </div>
                 <div class="permission-col text-center">
                   <div class="form-check">
-                    <input 
-                      class="form-check-input" 
-                      type="checkbox" 
-                      [checked]="permission.isDeletable"
-                      [disabled]="loading"
-                      (change)="togglePermission(i, 'isDeletable')">
+                    <input class="form-check-input" type="checkbox" [checked]="permission.isDeletable"
+                      [disabled]="loading" (change)="togglePermission(i, 'isDeletable')">
                   </div>
                 </div>
               </div>
@@ -209,17 +137,13 @@
           </div>
         </form>
       </div>
-      
+
       <div class="modal-footer">
-        <button 
-          type="button" 
-          class="btn btn-primary" 
-          (click)="onSubmit()"
-          [disabled]="!isFormValid() || loading">
+        <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="!isFormValid() || loading">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
-          {{ loading ? 'Creating...' : 'Add User' }}
+          {{ getSubmitButtonText() }}
         </button>
-        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="loading">
+        <button type="button" class="btn btn-light text-secondary" (click)="onClose()" [disabled]="loading">
           Cancel
         </button>
       </div>

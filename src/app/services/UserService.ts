@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -16,6 +17,8 @@ export interface User {
   };
   username: string;
   password?: string;
+  createdAt: string; 
+  updatedAt: string;
   permission: Permission[];
 }
 
@@ -114,20 +117,37 @@ export class UserService {
       );
   }
 
-  // Get user by ID
-  getUserById(id: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/users/${id}`)
+  // Get user by ID - updated with better logging
+  getUserById(id: string): Observable<any> {
+    console.log('Getting user by ID:', id);
+    return this.http.get<any>(`${this.apiUrl}/users/${id}`)
       .pipe(
+        tap(response => {
+          console.log('getUserById raw response:', response);
+        }),
         retry(2),
-        catchError(this.handleError)
+        catchError((error) => {
+          console.error('getUserById error:', error);
+          return this.handleError(error);
+        })
       );
   }
 
-  // Create new user - updated to handle new format
+  // Create new user - updated to handle new format with better logging
   createUser(user: any): Observable<any> {
+    console.log('Creating user with data:', user);
     return this.http.post<any>(`${this.apiUrl}/users`, user, this.getHttpOptions())
       .pipe(
-        catchError(this.handleError)
+        tap(response => {
+          console.log('Create user response:', response);
+        }),
+        catchError((error) => {
+          console.error('Create user error details:', error);
+          if (error.error) {
+            console.error('Error response body:', error.error);
+          }
+          return this.handleError(error);
+        })
       );
   }
 
@@ -173,5 +193,41 @@ export class UserService {
         retry(2),
         catchError(this.handleError)
       );
+  }
+
+  // Utility method to format date for display
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  }
+
+  // Utility method to format datetime for display
+  formatDateTime(dateString: string): string {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formatting datetime:', error);
+      return '';
+    }
   }
 }

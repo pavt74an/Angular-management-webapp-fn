@@ -13,6 +13,7 @@ export interface DisplayUser {
   role: string;
   roleColor: string;
   createDate: string;
+  updatedDate: string;
   description: string;
 }
 
@@ -25,12 +26,14 @@ export interface DisplayUser {
 })
 export class DashboardComponent implements OnInit {
   searchTerm: string = '';
-  selectedSort: string = 'firstName';
-  selectedSortDirection: 'asc' | 'desc' = 'asc';
+  selectedSort: string = 'createdAt';
+  selectedSortDirection: 'asc' | 'desc' = 'desc';
   selectedSavedSearch: string = '';
   itemsPerPage: number = 6;
   currentPage: number = 1;
   showAddUserModal: boolean = false;
+  editMode: boolean = false;
+  userToEdit: any = null;
   loading: boolean = false;
   error: string = '';
 
@@ -50,16 +53,14 @@ export class DashboardComponent implements OnInit {
   loadRoles() {
     this.userService.getRoles().subscribe({
       next: (roles: any) => {
-        console.log('Roles Response:', roles); // Debug log
+        console.log('Roles Response:', roles);
         
         // Handle specific API format: { status: {...}, data: [...] }
         if (roles && Array.isArray(roles.data)) {
           this.roles = roles.data;
         } else if (Array.isArray(roles)) {
-          // If response is directly an array (fallback)
           this.roles = roles;
         } else if (roles && typeof roles === 'object') {
-          // Try to find array in response (generic fallback)
           const possibleArrayKeys = ['data', 'roles', 'items', 'result'];
           for (const key of possibleArrayKeys) {
             if (Array.isArray(roles[key])) {
@@ -69,20 +70,18 @@ export class DashboardComponent implements OnInit {
           }
         }
         
-        // If still no valid roles array, use fallback
-        if (!Array.isArray(this.roles) || this.roles.length === 0) {
-          console.warn('No valid roles found in response, using fallback');
-          this.roles = this.getFallbackRoles();
+        // If no valid roles found, keep empty array
+        if (!Array.isArray(this.roles)) {
+          this.roles = [];
         }
       },
       error: (error) => {
         console.error('Error loading roles:', error);
-        // Use fallback roles if API is not available
-        this.roles = this.getFallbackRoles();
+        this.roles = [];
         if (error.status === 0) {
-          this.error = 'Cannot connect to API server. Please check if the server is running at http://localhost:5163';
+          this.error = 'Cannot connect to API server. Please check if the server is running.';
         } else {
-          this.error = 'Failed to load roles';
+          this.error = 'Failed to load roles from server.';
         }
       }
     });
@@ -102,30 +101,25 @@ export class DashboardComponent implements OnInit {
 
     this.userService.getUsersDataTable(request).subscribe({
       next: (response: any) => {
-        console.log('API Response:', response); // Debug log
+        console.log('API Response:', response);
         
-        // Handle API response format: { status: {...}, data: { users: [...], totalCount: ..., ... } }
         let userData: User[] = [];
         let totalRecords = 0;
         let filteredRecords = 0;
 
         if (response && response.data && Array.isArray(response.data.users)) {
-          // Handle the specific API format we received
           userData = response.data.users;
           totalRecords = response.data.totalCount || 0;
-          filteredRecords = response.data.totalCount || 0; // Assuming filtered count equals total for now
+          filteredRecords = response.data.totalCount || 0;
         } else if (Array.isArray(response)) {
-          // If response is directly an array (fallback)
           userData = response;
           totalRecords = response.length;
           filteredRecords = response.length;
         } else if (response && Array.isArray(response.data)) {
-          // If response has data property with array (another format)
           userData = response.data;
           totalRecords = response.totalRecords || response.recordsTotal || response.data.length;
           filteredRecords = response.filteredRecords || response.recordsFiltered || response.data.length;
         } else if (response && typeof response === 'object') {
-          // If response is an object, try to find array property (generic fallback)
           const possibleArrayKeys = ['data', 'users', 'items', 'result'];
           for (const key of possibleArrayKeys) {
             if (Array.isArray(response[key])) {
@@ -152,88 +146,28 @@ export class DashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error loading users:', error);
         this.loading = false;
+        this.users = []; // Clear users array on error
         
         if (error.status === 0) {
-          this.error = 'Cannot connect to API server. Please check if the server is running at http://localhost:5163';
-          // Use fallback data when API is not available
-          this.loadFallbackUsers();
+          this.error = 'Cannot connect to API server. Please check if the server is running.';
+        } else if (error.status === 500) {
+          this.error = 'Internal server error. Please try again later.';
+        } else if (error.status === 404) {
+          this.error = 'API endpoint not found.';
         } else {
-          this.error = 'Failed to load users from server';
+          this.error = 'Failed to load users from server.';
         }
       }
     });
   }
 
-  private getFallbackRoles(): Role[] {
-    return [
-      { roleId: 'ROLE001', roleName: 'System Administrator' },
-      { roleId: 'ROLE002', roleName: 'Operations Manager' },
-      { roleId: 'ROLE003', roleName: 'Sales Executive' },
-      { roleId: 'ROLE004', roleName: 'Financial Analyst' },
-      { roleId: 'ROLE005', roleName: 'Warehouse Supervisor' },
-      { roleId: 'ROLE006', roleName: 'Customer Service Representative' }
-    ];
-  }
-
-  private loadFallbackUsers() {
-    // Fallback data when API is not available - updated to match new format
-    const fallbackUsers: User[] = [
-      {
-        id: 'USR001',
-        firstName: 'Alexander',
-        lastName: 'Anderson',
-        email: 'alex.anderson@techcorp.com',
-        phone: '02-555-0101',
-        role: {
-          roleId: 'ROLE001',
-          roleName: 'System Administrator'
-        },
-        username: 'alex.anderson',
-        permission: []
-      },
-      {
-        id: 'USR002',
-        firstName: 'Sophia',
-        lastName: 'Chen',
-        email: 'sophia.chen@techcorp.com',
-        phone: '02-555-0102',
-        role: {
-          roleId: 'ROLE002',
-          roleName: 'Operations Manager'
-        },
-        username: 'sophia.chen',
-        permission: []
-      },
-      {
-        id: 'USR003',
-        firstName: 'Marcus',
-        lastName: 'Rodriguez',
-        email: 'marcus.rodriguez@techcorp.com',
-        phone: '02-555-0103',
-        role: {
-          roleId: 'ROLE003',
-          roleName: 'Sales Executive'
-        },
-        username: 'marcus.rodriguez',
-        permission: []
-      }
-    ];
-
-    this.users = this.mapUsersToDisplayFormat(fallbackUsers);
-    this.filteredRecords = this.users.length;
-    this.totalRecords = this.users.length;
-    this.calculatePagination();
-  }
-
   private mapUsersToDisplayFormat(apiUsers: User[]): DisplayUser[] {
-    // Ensure apiUsers is an array and not null/undefined
     if (!Array.isArray(apiUsers)) {
       console.error('mapUsersToDisplayFormat: apiUsers is not an array:', apiUsers);
       return [];
     }
 
     return apiUsers.map(user => {
-      // Handle the new API format where role is an object
       const roleName = user.role ? user.role.roleName : 'Unknown Role';
       
       return {
@@ -242,12 +176,9 @@ export class DashboardComponent implements OnInit {
         email: user.email || '',
         role: roleName,
         roleColor: this.getRoleColor(roleName),
-        createDate: new Date().toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }), // API doesn't provide create date, using current date as fallback
-        description: 'User Description' // API doesn't provide description, using placeholder
+        createDate: this.userService.formatDate(user.createdAt),
+        updatedDate: this.userService.formatDate(user.updatedAt),
+        description: 'User Description'
       };
     });
   }
@@ -256,12 +187,11 @@ export class DashboardComponent implements OnInit {
     this.totalPages = Math.ceil(this.filteredRecords / this.itemsPerPage);
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
       this.currentPage = this.totalPages;
-      this.loadUsers(); // Reload with corrected page
+      this.loadUsers();
     }
   }
 
   getPaginatedUsers(): DisplayUser[] {
-    // Since API handles pagination, return all loaded users
     return this.users;
   }
 
@@ -282,39 +212,50 @@ export class DashboardComponent implements OnInit {
   }
 
   openAddUserModal() {
+    this.editMode = false;
+    this.userToEdit = null;
+    this.showAddUserModal = true;
+  }
+
+  openEditUserModal(user: DisplayUser) {
+    console.log('Opening edit modal for user:', user);
+    this.editMode = true;
+    this.userToEdit = user;
     this.showAddUserModal = true;
   }
 
   closeAddUserModal() {
     this.showAddUserModal = false;
+    this.editMode = false;
+    this.userToEdit = null;
   }
 
   onUserAdded(eventData: any) {
     if (eventData.success) {
-      // Show success message
-      this.error = ''; // Clear any existing errors
-      
-      // Show temporary success message
+      this.error = '';
       const successMessage = eventData.message || 'User created successfully!';
       console.log(successMessage);
-      
-      // You can also show a toast notification here if you have a toast service
       this.showSuccessMessage(successMessage);
-      
-      // Refresh the users list to show the new user
       this.loadUsers();
-      
-      // Close the modal
+      this.closeAddUserModal();
+    }
+  }
+
+  onUserUpdated(eventData: any) {
+    if (eventData.success) {
+      this.error = '';
+      const successMessage = eventData.message || 'User updated successfully!';
+      console.log(successMessage);
+      this.showSuccessMessage(successMessage);
+      this.loadUsers();
       this.closeAddUserModal();
     }
   }
 
   private showSuccessMessage(message: string) {
-    // Temporarily show success message in the error area (green styling can be added via CSS)
     const originalError = this.error;
     this.error = `SUCCESS: ${message}`;
     
-    // Clear the success message after 3 seconds
     setTimeout(() => {
       if (this.error.startsWith('SUCCESS:')) {
         this.error = originalError;
@@ -324,16 +265,10 @@ export class DashboardComponent implements OnInit {
 
   getRoleColor(role: string): string {
     switch (role) {
-      case 'System Administrator':
-      case 'Operations Manager':
       case 'Super Admin':
       case 'Admin':
       case 'HR Admin':
         return 'primary';
-      case 'Sales Executive':
-      case 'Financial Analyst':
-      case 'Warehouse Supervisor':
-      case 'Customer Service Representative':
       case 'Employee':
         return 'secondary';
       default:
@@ -350,7 +285,7 @@ export class DashboardComponent implements OnInit {
         next: () => {
           console.log('User deleted successfully');
           this.showSuccessMessage('User deleted successfully!');
-          this.loadUsers(); // Reload the users list
+          this.loadUsers();
           this.loading = false;
         },
         error: (error) => {
@@ -397,7 +332,11 @@ export class DashboardComponent implements OnInit {
   }
 
   onSortByDate() {
-    this.onSort('createDate');
+    this.onSort('createdAt');
+  }
+
+  onSortByUpdatedDate() {
+    this.onSort('updatedAt');
   }
 
   onSortByRole() {

@@ -139,13 +139,14 @@
               </div>
             </td>
             <td>
-              <span class="badge" [class]="'bg-' + user.roleColor">{{ user.role }}</span>
+              <span class="badge role-box" [class]="'bg-' + user.roleColor">{{ user.role }}</span>
             </td>
             <td>{{ user.createDate }}</td>
             <td>{{ user.description }}</td>
             <td>
               <div class="action-buttons">
                 <button class="btn btn-sm btn-outline-secondary me-1" 
+                        (click)="openEditUserModal(user)"
                         [disabled]="loading"
                         title="Edit user">
                   <i class="bi bi-pencil"></i>
@@ -202,9 +203,12 @@
   </div>
 </div>
 
-<!-- Add User Modal -->
+<!-- Add/Edit User Modal -->
 <app-add-user-modal 
-  [show]="showAddUserModal" 
+  [show]="showAddUserModal"
+  [editMode]="editMode"
+  [userToEdit]="userToEdit"
   (close)="closeAddUserModal()" 
-  (userAdded)="onUserAdded($event)">
+  (userAdded)="onUserAdded($event)"
+  (userUpdated)="onUserUpdated($event)">
 </app-add-user-modal>

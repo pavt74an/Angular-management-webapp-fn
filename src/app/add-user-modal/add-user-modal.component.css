@@ -113,7 +113,7 @@
 
 .permission-header {
   display: flex;
-  background-color: #f8f9fa;
+  background-color: #EFF4FA;
   border-bottom: 1px solid #e9ecef;
   font-weight: 600;
   color: #495057;
@@ -143,7 +143,6 @@
 
 .permission-col:not(.module-col) {
   width: 120px;
-  justify-content: center;
 }
 
 .module-name {
